@@ -39,22 +39,24 @@ struct NotebookIndex {
 
     static func shortDate(_ day: String) -> String {
         guard let date = NotebookStore.date(day) else { return day }
+        let locale = Preferences.dateLanguage.locale
         return Calendar.current.isDate(date, equalTo: Date(), toGranularity: .year)
-            ? date.formatted(.dateTime.day().month(.abbreviated))
-            : date.formatted(.dateTime.day().month(.abbreviated).year())
+            ? date.formatted(.dateTime.day().month(.abbreviated).locale(locale))
+            : date.formatted(.dateTime.day().month(.abbreviated).year().locale(locale))
     }
 
     /// In a section of its year: "4 Nov".
     static func dayAndMonth(_ day: String) -> String {
-        NotebookStore.date(day)?.formatted(.dateTime.day().month(.abbreviated)) ?? day
+        NotebookStore.date(day)?.formatted(.dateTime.day().month(.abbreviated).locale(Preferences.dateLanguage.locale)) ?? day
     }
 
     /// For VoiceOver: "Wednesday, November 4", with the year when it isn't this one.
     static func longDate(_ day: String) -> String {
         guard let date = NotebookStore.date(day) else { return day }
         let thisYear = Calendar.current.isDate(date, equalTo: Date(), toGranularity: .year)
-        return thisYear ? date.formatted(.dateTime.weekday(.wide).day().month(.wide))
-                        : date.formatted(.dateTime.day().month(.wide).year())
+        let locale = Preferences.dateLanguage.locale
+        return thisYear ? date.formatted(.dateTime.weekday(.wide).day().month(.wide).locale(locale))
+                        : date.formatted(.dateTime.day().month(.wide).year().locale(locale))
     }
 }
 

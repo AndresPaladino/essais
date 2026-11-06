@@ -110,7 +110,7 @@ final class MonthView: NSView {
     }
 
     private func reload() {
-        title.stringValue = month.formatted(.dateTime.month(.wide).year())
+        title.stringValue = month.formatted(.dateTime.month(.wide).year().locale(Preferences.dateLanguage.locale))
         let today = calendar.startOfDay(for: Date())
         let firstMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: first))!
         previous.isEnabled = month > firstMonth

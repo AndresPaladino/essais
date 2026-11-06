@@ -101,13 +101,29 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         carryOverSettings()
+        NSApp.appearance = Preferences.look.appearance
         NSApp.mainMenu = menu()
+        guard store.folderIsMissing else { return openNotebook() }
+        // An alert shown while launching never gets the keyboard: macOS activates the app only once
+        // this method returns.
+        DispatchQueue.main.async { [self] in
+            guard findFolder() else { NSApp.terminate(nil); return }
+            openNotebook()
+        }
+    }
+
+    private func openNotebook() {
         guard bringJournal() else { NSApp.terminate(nil); return }
         notebook = NotebookController(store: store)
         notebook.showWindow(nil)
         notebook.load()
         notebook.openAtEnd()
         notebook.startWatching()
+        settings = SettingsModel(notebook: notebook, store: store)
+        // Someone who already has writing doesn't need to be told what Essais is.
+        if !Preferences.welcomed {
+            if notebook.hasWriting { Preferences.welcomed = true } else { showWelcome(nil) }
+        }
         #if QA
         // ESSAIS_QUIET: a test instance that doesn't take the front from whoever is working.
         if QA.env("ESSAIS_QUIET") == nil { NSApp.activate() }
@@ -151,6 +167,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             if args.contains("--cursor-check") { FileHandle.standardError.write((notebook.debugCursors() + "\n").data(using: .utf8)!) }
             if args.contains("--rotors") { FileHandle.standardError.write((notebook.debugRotors() + "\n").data(using: .utf8)!) }
             if args.contains("--scroll-log") { notebook.debugScrollLog() }
+            if args.contains("--settings") { showSettings(nil) }
+            if args.contains("--welcome") { showWelcome(nil) }
+            // --move-to folder: the move, with its real alerts, without the panel that picks the folder.
+            if let folder = value("--move-to"), let window = notebook.window {
+                let mover = NotebookMover(notebook: notebook, store: store)
+                Task { await mover.move(to: URL(fileURLWithPath: folder), from: window) }
+            }
             if let text = value("--find") { notebook.find(text) }
             if let mode = value("--size-walk") { notebook.debugSizeWalk(mode) }
             if args.contains("--about") { showAbout(nil) }
@@ -185,6 +208,59 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.activate()
         Updater.shared.start()
         #endif
+    }
+
+    private var settings: SettingsModel?
+    private var settingsWindow: SettingsWindowController?
+    private var welcome: WelcomeSheet?
+
+    @objc func showSettings(_ sender: Any?) {
+        guard let settings else { return }
+        if settingsWindow == nil { settingsWindow = SettingsWindowController(model: settings) }
+        settingsWindow?.showWindow(nil)
+        settingsWindow?.window?.makeKeyAndOrderFront(nil)
+        NSApp.activate()
+    }
+
+    @objc func showWelcome(_ sender: Any?) {
+        guard let settings, let window = notebook.window, welcome == nil else { return }
+        notebook.showWindow(nil)
+        let sheet = WelcomeSheet(model: settings, parent: window) { [weak self] in
+            Preferences.welcomed = true
+            self?.welcome = nil
+            self?.notebook.focusText()
+        }
+        welcome = sheet
+        sheet.show()
+    }
+
+    /// A chosen folder that isn't there (a disconnected disk) never becomes an empty notebook: the
+    /// writing is somewhere, and a new page would look as if it were gone.
+    private func findFolder() -> Bool {
+        while store.folderIsMissing {
+            NSApp.activate()
+            let alert = NSAlert()
+            alert.alertStyle = .warning
+            alert.messageText = String(localized: "The notebook’s folder can’t be found")
+            alert.informativeText = String(localized: "\(NotebookFiles.label(for: store.directory)) isn’t available. If it’s on an external drive, connect it and try again.")
+            alert.addButton(withTitle: String(localized: "Try Again"))
+            alert.addButton(withTitle: String(localized: "Choose Folder…"))
+            alert.addButton(withTitle: String(localized: "Quit"))
+            switch alert.runModal() {
+            case .alertFirstButtonReturn:
+                continue
+            case .alertSecondButtonReturn:
+                let panel = NSOpenPanel()
+                panel.canChooseFiles = false
+                panel.canChooseDirectories = true
+                panel.canCreateDirectories = true
+                panel.prompt = String(localized: "Choose")
+                if panel.runModal() == .OK, let chosen = panel.url { store.relocate(to: NotebookFiles.destination(for: chosen)) }
+            default:
+                return false
+            }
+        }
+        return true
     }
 
     /// The standard panel: icon, name, version and copyright (from Info.plist), and one line about it.
@@ -310,6 +386,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         app.addItem(withTitle: String(localized: "About Essais"), action: #selector(showAbout(_:)), keyEquivalent: "").target = self
         app.addItem(withTitle: String(localized: "Check for Updates…"), action: #selector(Updater.checkForUpdates(_:)), keyEquivalent: "").target = Updater.shared
         app.addItem(.separator())
+        app.addItem(withTitle: String(localized: "Settings…"), action: #selector(showSettings(_:)), keyEquivalent: ",").target = self
+        app.addItem(.separator())
         app.addItem(withTitle: String(localized: "Hide Essais"), action: #selector(NSApplication.hide(_:)), keyEquivalent: "h")
         app.addItem(withTitle: String(localized: "Hide Others"), action: #selector(NSApplication.hideOtherApplications(_:)), keyEquivalent: "h")
             .keyEquivalentModifierMask = [.command, .option]
@@ -378,7 +456,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.windowsMenu = window
 
         // Help: macOS puts its menu search here.
-        NSApp.helpMenu = sub(String(localized: "Help"))
+        let help = sub(String(localized: "Help"))
+        help.addItem(withTitle: String(localized: "Welcome to Essais"), action: #selector(showWelcome(_:)), keyEquivalent: "").target = self
+        NSApp.helpMenu = help
         return main
     }
 }

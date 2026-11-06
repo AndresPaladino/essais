@@ -269,16 +269,63 @@ final class PaperTextView: NSTextView {
         isContinuousSpellCheckingEnabled = d.object(forKey: "spelling") as? Bool ?? true
         isGrammarCheckingEnabled = d.bool(forKey: "grammar")
         if let auto = d.object(forKey: "autocorrect") as? Bool { isAutomaticSpellingCorrectionEnabled = auto }
+        if let quotes = d.object(forKey: "quotes") as? Bool { isAutomaticQuoteSubstitutionEnabled = quotes }
+        if let dashes = d.object(forKey: "dashes") as? Bool { isAutomaticDashSubstitutionEnabled = dashes }
+        if let replacement = d.object(forKey: "replacement") as? Bool { isAutomaticTextReplacementEnabled = replacement }
+    }
+    override func toggleAutomaticQuoteSubstitution(_ sender: Any?) {
+        super.toggleAutomaticQuoteSubstitution(sender); remember(.quotes)
+    }
+    override func toggleAutomaticDashSubstitution(_ sender: Any?) {
+        super.toggleAutomaticDashSubstitution(sender); remember(.dashes)
+    }
+    override func toggleAutomaticTextReplacement(_ sender: Any?) {
+        super.toggleAutomaticTextReplacement(sender); remember(.replacement)
+    }
+
+    subscript(option: WritingOption) -> Bool {
+        get {
+            switch option {
+            case .spelling: isContinuousSpellCheckingEnabled
+            case .grammar: isGrammarCheckingEnabled
+            case .autocorrect: isAutomaticSpellingCorrectionEnabled
+            case .quotes: isAutomaticQuoteSubstitutionEnabled
+            case .dashes: isAutomaticDashSubstitutionEnabled
+            case .replacement: isAutomaticTextReplacementEnabled
+            }
+        }
+        set {
+            switch option {
+            case .spelling: isContinuousSpellCheckingEnabled = newValue
+            case .grammar: isGrammarCheckingEnabled = newValue
+            case .autocorrect: isAutomaticSpellingCorrectionEnabled = newValue
+            case .quotes: isAutomaticQuoteSubstitutionEnabled = newValue
+            case .dashes: isAutomaticDashSubstitutionEnabled = newValue
+            case .replacement: isAutomaticTextReplacementEnabled = newValue
+            }
+            remember(option)
+        }
+    }
+
+    private func remember(_ option: WritingOption) {
+        UserDefaults.standard.set(self[option], forKey: option.rawValue)
+        NotificationCenter.default.post(name: .essaisSettingsChanged, object: nil)
     }
     override func toggleContinuousSpellChecking(_ sender: Any?) {
-        super.toggleContinuousSpellChecking(sender); UserDefaults.standard.set(isContinuousSpellCheckingEnabled, forKey: "spelling")
+        super.toggleContinuousSpellChecking(sender); remember(.spelling)
     }
     override func toggleGrammarChecking(_ sender: Any?) {
-        super.toggleGrammarChecking(sender); UserDefaults.standard.set(isGrammarCheckingEnabled, forKey: "grammar")
+        super.toggleGrammarChecking(sender); remember(.grammar)
     }
     override func toggleAutomaticSpellingCorrection(_ sender: Any?) {
-        super.toggleAutomaticSpellingCorrection(sender); UserDefaults.standard.set(isAutomaticSpellingCorrectionEnabled, forKey: "autocorrect")
+        super.toggleAutomaticSpellingCorrection(sender); remember(.autocorrect)
     }
+}
+
+/// The text view's choices that are remembered and shown in Settings. The raw value is the setting's key.
+enum WritingOption: String, CaseIterable, Identifiable {
+    case spelling, grammar, autocorrect, quotes, dashes, replacement
+    var id: String { rawValue }
 }
 
 @MainActor
@@ -740,6 +787,14 @@ final class NotebookController: NSWindowController, NSWindowDelegate, NSTextView
                 MainActor.assumeIsolated { self?.dayChanged() }
             }
         }
+        watchFolder()
+        NotificationCenter.default.addObserver(forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated { self?.diskChanged(); self?.dayChanged() }
+        }
+    }
+
+    private func watchFolder() {
+        pendingDiskCheck?.cancel()
         // iCloud can bring hundreds of files in a row: one look at the folder once they stop coming.
         watcher = FolderWatcher(store.directory) { [weak self] in
             guard let self else { return }
@@ -748,18 +803,52 @@ final class NotebookController: NSWindowController, NSWindowDelegate, NSTextView
             self.pendingDiskCheck = work
             DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: work)
         }
-        NotificationCenter.default.addObserver(forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main) { [weak self] _ in
-            MainActor.assumeIsolated { self?.diskChanged(); self?.dayChanged() }
-        }
     }
 
     /// Our own edits are written first: if the same day changed in both places, ours stays and the
     /// other one is kept beside it (see NotebookStore.save). Then whatever else changed comes in.
     private func diskChanged() {
+        // A folder that's gone (a disk disconnected) isn't a notebook without days. What's on screen
+        // stays, and saving says what's wrong.
+        guard !writingPaused, store.folderIsThere else { return }
         // While something couldn't be saved, the notebook is the only copy of it: never reload over it.
         guard saveNow().failed.isEmpty, store.changedOnDisk() else { return }
         reloadKeepingPlace()
     }
+
+    // MARK: - Changing folder and language
+
+    private var writingPaused = false
+
+    /// While the notebook moves, nothing can be typed and nothing is read from the folder.
+    func setWritingPaused(_ paused: Bool) {
+        writingPaused = paused
+        textView.isEditable = !paused
+    }
+
+    /// The notebook, now in `folder`.
+    func openFolder(_ folder: URL) {
+        store.relocate(to: folder)
+        watchFolder()
+        toldUnreadable = []
+        toldFailing = []
+        load()
+        search.refresh()
+        openAtEnd()
+        NotificationCenter.default.post(name: .essaisSettingsChanged, object: nil)
+    }
+
+    /// The date lines are text, so they're written again. Only if all the writing is on disk.
+    func dateLanguageChanged() {
+        guard saveNow().failed.isEmpty else { return }
+        reloadKeepingPlace()
+    }
+
+    func writingOption(_ option: WritingOption) -> Bool { textView[option] }
+    func setWritingOption(_ option: WritingOption, to value: Bool) { textView[option] = value }
+
+    var hasWriting: Bool { !store.isEmpty }
+    func focusText() { window?.makeFirstResponder(textView) }
 
     /// Reloads the notebook and leaves the caret and the paper where they were, counted from the
     /// day they belong to, so a change in an earlier day doesn't move you.
@@ -1236,6 +1325,7 @@ final class NotebookController: NSWindowController, NSWindowDelegate, NSTextView
         updateInsets()
         restore(anchor)
         search.refresh()
+        NotificationCenter.default.post(name: .essaisSettingsChanged, object: nil)
     }
 
     /// New font or size, applied to the text in place: nothing is reloaded, undo stays valid.

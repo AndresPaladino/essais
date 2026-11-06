@@ -22,7 +22,14 @@ struct Day {
 /// ~/Documents/Essais. Documents lives in iCloud Drive, so every read and write is
 /// coordinated (that also downloads a file iCloud has evicted).
 final class NotebookStore {
-    let directory: URL
+    private(set) var directory: URL
+    /// A folder chosen in Settings that isn't there (a disk that isn't connected). The notebook doesn't
+    /// open on an empty page as if nothing had been written: AppDelegate asks first.
+    var folderIsMissing: Bool { isChosenFolder && !FileManager.default.fileExists(atPath: directory.path) }
+    private var isChosenFolder = false
+    /// False once the folder is gone while the app is open: a change, but not the writing's end.
+    var folderIsThere: Bool { FileManager.default.fileExists(atPath: directory.path) }
+    var previousFolder: URL { previous }
     /// What each file held when we last read or wrote it, to save only what changed and to
     /// notice when something else changed a file under us.
     private var saved: [String: String] = [:]
@@ -71,13 +78,31 @@ final class NotebookStore {
     init() {
         if let custom = QA.env("ESSAIS_DIR") {
             directory = URL(fileURLWithPath: custom, isDirectory: true)
+            isChosenFolder = QA.env("ESSAIS_DIR_CHOSEN") == "1"
+        } else if let chosen = Preferences.folder {
+            directory = URL(fileURLWithPath: chosen, isDirectory: true)
+            isChosenFolder = true
         } else {
-            directory = Self.documents.appendingPathComponent("Essais", isDirectory: true)
+            directory = Self.defaultDirectory
         }
-        try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        if !isChosenFolder { try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true) }
     }
 
     static var documents: URL { FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0] }
+    static var defaultDirectory: URL { documents.appendingPathComponent("Essais", isDirectory: true) }
+
+    /// The notebook now lives in `folder`. What was known about the old one no longer means anything.
+    func relocate(to folder: URL) {
+        directory = folder
+        isChosenFolder = folder.standardizedFileURL.path != Self.defaultDirectory.standardizedFileURL.path
+        Preferences.folder = isChosenFolder ? folder.path : nil
+        try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        saved = [:]
+        stamps = [:]
+        keptPrevious = []
+        asideThisSession = [:]
+        asideTold = []
+    }
 
     /// File names are always Gregorian, whatever calendar the Mac shows (Buddhist, Japanese, Hebrew…).
     static let calendar: Calendar = {
@@ -189,7 +214,7 @@ final class NotebookStore {
                     // Only what we read or wrote, unchanged since, goes to the Trash. Anything else is
                     // someone else's writing: changedOnDisk() brings it in.
                     if let disk, disk != saved[day.key] { continue }
-                    if exists { try trash(url) }
+                    if exists { try Self.moveToTrash(url) }
                     stamps[url.lastPathComponent] = nil
                 } else {
                     if let disk, disk != day.text, disk != saved[day.key],
@@ -283,7 +308,7 @@ final class NotebookStore {
     }
 
     /// iCloud Drive sometimes refuses the Trash (error 513); then the file goes to ~/.Trash by hand.
-    private func trash(_ url: URL) throws {
+    static func moveToTrash(_ url: URL) throws {
         var coordinationError: NSError?
         var trashError: Error?
         NSFileCoordinator().coordinate(writingItemAt: url, options: .forDeleting, error: &coordinationError) { url in

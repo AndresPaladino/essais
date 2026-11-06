@@ -130,8 +130,9 @@ enum Reading {
         p.paragraphSpacing = (size * 0.5).rounded()
         // The year appears when it isn't this one: after a few years, "9 January" alone says little.
         let thisYear = Calendar.current.isDate(date, equalTo: Date(), toGranularity: .year)
-        let words = (thisYear ? date.formatted(.dateTime.weekday(.wide).day().month(.wide))
-                              : date.formatted(.dateTime.weekday(.wide).day().month(.wide).year())).uppercased()
+        let locale = Preferences.dateLanguage.locale
+        let words = (thisYear ? date.formatted(.dateTime.weekday(.wide).day().month(.wide).locale(locale))
+                              : date.formatted(.dateTime.weekday(.wide).day().month(.wide).year().locale(locale))).uppercased(with: locale)
         return NSAttributedString(string: words + "\n", attributes: [
             .font: NSFont.systemFont(ofSize: max(10.5, size * 0.62), weight: .semibold),
             // A system color, so Increase Contrast darkens it like the rest of macOS.

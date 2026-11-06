@@ -117,3 +117,77 @@
 "Subheading" = "Subencabezado";
 "One notebook to write in, day after day." = "Un solo cuaderno para escribir, día tras día.";
 "Check for Updates…" = "Buscar actualizaciones…";
+
+/* Settings */
+"Settings…" = "Ajustes…";
+"Settings" = "Ajustes";
+"Writing" = "Escritura";
+"Size" = "Tamaño";
+"Sample text" = "Texto de muestra";
+"Today I walked to the waterfront and stayed to read for a while." = "Hoy caminé hasta la rambla y me quedé leyendo un rato.";
+"Corrections and Substitutions" = "Corrección y sustituciones";
+"Appearance" = "Apariencia";
+"Mode" = "Modo";
+"Automatic" = "Automático";
+"Light" = "Claro";
+"Dark" = "Oscuro";
+"Date Language" = "Idioma de las fechas";
+"Same as System" = "Como el sistema";
+"Notebook" = "Cuaderno";
+"Folder" = "Carpeta";
+"Change…" = "Cambiar…";
+"Previous Days" = "Días anteriores";
+"When you edit a previous day, a copy is kept for 90 days." = "Al editar un día anterior, se conserva una copia durante 90 días.";
+"Show Copies" = "Mostrar copias";
+"Updates" = "Actualizaciones";
+"Check Automatically" = "Buscar automáticamente";
+"Once a day. Updates require confirmation." = "Una vez al día. Las actualizaciones requieren confirmación.";
+"Check Now" = "Buscar ahora";
+
+/* Welcome */
+"Welcome to Essais" = "Bienvenida a Essais";
+"A continuous notebook for Mac" = "Un cuaderno continuo para Mac";
+"One Notebook" = "Un solo cuaderno";
+"Each day begins with its date. There are no folders or entries to name." = "Cada día comienza con su fecha. No hay carpetas ni entradas que nombrar.";
+"Titles and Topics" = "Títulos y temas";
+"Lines with # and words with #topic appear in the Index." = "Las líneas con # y las palabras con #tema aparecen en el Índice.";
+"Text Files" = "Archivos de texto";
+"Each day is saved as a text file. No account is required." = "Cada día se guarda como un archivo de texto. No requiere una cuenta.";
+"This can be changed later in Aa or in Settings." = "Se puede cambiar más tarde en Aa o en Ajustes.";
+"Location" = "Ubicación";
+"Each day is saved as a text file that any editor can open." = "Cada día se guarda como un archivo de texto que se puede abrir con cualquier editor.";
+"Syncs with iCloud Drive if Desktop & Documents is turned on." = "Se sincroniza con iCloud Drive si Escritorio y Documentos está activado.";
+"Other Folder…" = "Otra carpeta…";
+"Dropbox, an external drive or another location." = "Dropbox, un disco externo u otra ubicación.";
+"Step %lld of 3" = "Paso %lld de 3";
+"Back" = "Atrás";
+"Continue" = "Continuar";
+"Start" = "Empezar";
+
+/* Moving the notebook */
+"Choose" = "Elegir";
+"Choose a folder for the notebook." = "Elige una carpeta para el cuaderno.";
+"This folder can’t be used" = "No se puede usar esta carpeta";
+"Choose a folder outside the current notebook folder." = "Elige una carpeta fuera de la carpeta actual del cuaderno.";
+"Essais doesn’t have permission to save there." = "Essais no tiene permiso para guardar ahí.";
+"The notebook couldn’t be moved" = "No se pudo mover el cuaderno";
+"The notebook stays in its current location." = "El cuaderno permanece en su ubicación actual.";
+"Move the notebook to %@?" = "¿Mover el cuaderno a %@?";
+"The notebook (%@) will move from %@ to %@. If this can’t be completed, the notebook stays in its current location." = "El cuaderno (%1$@) se moverá de %2$@ a %3$@. Si no se puede completar, permanece en su ubicación actual.";
+"This folder isn’t in iCloud Drive, so the notebook will stop syncing with iCloud." = "Esta carpeta no está en iCloud Drive, por lo que el cuaderno dejará de sincronizarse con iCloud.";
+"Move" = "Mover";
+"%@ already has %@" = "%1$@ ya tiene %2$@";
+"1 day" = "1 día";
+"%@ days" = "%@ días";
+"Days with different text in the two locations: %@. When combining the notebooks, both versions of those days are kept." = "Días con texto distinto en las dos ubicaciones: %@. Al combinar los cuadernos, se conservan las dos versiones de esos días.";
+"When combining the notebooks, all the days stay in that folder." = "Al combinar los cuadernos, todos los días quedan en esa carpeta.";
+"Combine" = "Combinar";
+"Use Only That Folder" = "Usar solo esa carpeta";
+"Moving the notebook…" = "Moviendo el cuaderno…";
+"The previous folder couldn’t be moved to the Trash" = "La carpeta anterior no se pudo mover a la Papelera";
+"The notebook is already in its new location. The previous folder can be deleted." = "El cuaderno ya está en su nueva ubicación. La carpeta anterior se puede eliminar.";
+"The notebook’s folder can’t be found" = "No se encuentra la carpeta del cuaderno";
+"%@ isn’t available. If it’s on an external drive, connect it and try again." = "%@ no está disponible. Si está en un disco externo, conéctalo y vuelve a intentarlo.";
+"Try Again" = "Volver a intentar";
+"Choose Folder…" = "Elegir carpeta…";
+"Quit" = "Salir";

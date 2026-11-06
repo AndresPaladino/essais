@@ -17,6 +17,24 @@ final class Updater: NSObject, SPUUpdaterDelegate, NSMenuItemValidation {
 
     func validateMenuItem(_ item: NSMenuItem) -> Bool { controller.updater.canCheckForUpdates }
 
+    var checksAutomatically: Bool {
+        get {
+            #if QA
+            // The test copy never starts the updater just to show a setting.
+            return UserDefaults.standard.object(forKey: "SUEnableAutomaticChecks") as? Bool ?? true
+            #else
+            return controller.updater.automaticallyChecksForUpdates
+            #endif
+        }
+        set {
+            #if QA
+            UserDefaults.standard.set(newValue, forKey: "SUEnableAutomaticChecks")
+            #else
+            controller.updater.automaticallyChecksForUpdates = newValue
+            #endif
+        }
+    }
+
     #if QA
     /// ESSAIS_FEED: a local feed, to try a whole update on the machine.
     nonisolated func feedURLString(for updater: SPUUpdater) -> String? { QA.env("ESSAIS_FEED") }
