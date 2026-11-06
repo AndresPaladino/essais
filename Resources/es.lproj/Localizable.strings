@@ -1,0 +1,119 @@
+/* Menus: the names macOS uses in Spanish. */
+"About Essais" = "Acerca de Essais";
+"Hide Essais" = "Ocultar Essais";
+"Hide Others" = "Ocultar otros";
+"Show All" = "Mostrar todo";
+"Quit Essais" = "Salir de Essais";
+"File" = "Archivo";
+"Close" = "Cerrar";
+"Edit" = "Edición";
+"Undo" = "Deshacer";
+"Redo" = "Rehacer";
+"Cut" = "Cortar";
+"Copy" = "Copiar";
+"Paste" = "Pegar";
+"Select All" = "Seleccionar todo";
+"Find" = "Buscar";
+"Find…" = "Buscar…";
+"Find Next" = "Buscar siguiente";
+"Find Previous" = "Buscar anterior";
+"Use Selection for Find" = "Usar selección para buscar";
+"Index" = "Índice";
+"View" = "Visualización";
+"Bigger" = "Más grande";
+"Smaller" = "Más pequeño";
+"Reset Zoom" = "Quitar zoom";
+"Jump to Selection" = "Ir a la selección";
+"Font" = "Letra";
+"Filter" = "Filtrar";
+"Enter Full Screen" = "Entrar en pantalla completa";
+"Window" = "Ventana";
+"Minimize" = "Minimizar";
+
+/* Toolbar */
+"Type" = "Letra";
+"Font and Size" = "Letra y tamaño";
+"Search" = "Buscar";
+
+/* Font and size */
+"System" = "Sistema";
+"Smaller Text" = "Texto más pequeño";
+"Bigger Text" = "Texto más grande";
+"%lld-point text" = "Letra de %lld puntos";
+
+/* Index */
+"Titles" = "Títulos";
+"Tags" = "Etiquetas";
+"Start a line with # and a title, or write a #tag anywhere, and it will appear here." = "Empieza una línea con # y un título, o escribe una #etiqueta en cualquier lugar, y aparecerá aquí.";
+"Tag %@, one day" = "Etiqueta %@, un día";
+"Tag %@, %lld days" = "Etiqueta %1$@, %2$lld días";
+"Days" = "Días";
+
+/* Search */
+"Previous" = "Anterior";
+"Next" = "Siguiente";
+"No Results" = "Sin resultados";
+"%lld of %lld" = "%1$lld de %2$lld";
+
+/* Bringing in the ClearMind journal */
+"The ClearMind journal couldn’t be brought in" = "No se pudo traer el diario de ClearMind";
+"Nothing was changed. %@" = "No se cambió nada. %@";
+
+/* Edit and Window menus, as macOS names them */
+"Paste and Match Style" = "Pegar y aplicar estilo";
+"Delete" = "Eliminar";
+"Spelling and Grammar" = "Ortografía y gramática";
+"Show Spelling and Grammar" = "Mostrar ortografía y gramática";
+"Check Document Now" = "Comprobar documento ahora";
+"Check Spelling While Typing" = "Comprobar ortografía mientras se escribe";
+"Check Grammar With Spelling" = "Comprobar gramática con la ortografía";
+"Correct Spelling Automatically" = "Corregir ortografía automáticamente";
+"Substitutions" = "Sustituciones";
+"Show Substitutions" = "Mostrar sustituciones";
+"Smart Copy/Paste" = "Copiar/pegar inteligente";
+"Smart Quotes" = "Comillas tipográficas";
+"Smart Dashes" = "Guiones inteligentes";
+"Text Replacement" = "Sustitución de texto";
+"Transformations" = "Transformaciones";
+"Make Upper Case" = "Convertir en mayúsculas";
+"Make Lower Case" = "Convertir en minúsculas";
+"Capitalize" = "Poner en mayúscula inicial";
+"Speech" = "Voz";
+"Start Speaking" = "Iniciar locución";
+"Stop Speaking" = "Detener locución";
+"Zoom" = "Zoom";
+"Bring All to Front" = "Traer todo al frente";
+"Help" = "Ayuda";
+
+/* Telling the writer */
+"The writing of %@ couldn’t be saved" = "No se pudo guardar lo escrito el %@";
+"Essais will keep trying while it’s open. %@" = "Essais lo seguirá intentando mientras esté abierto. %@";
+"A day changed in two places" = "Un día cambió en dos lugares";
+"Your version stays in the notebook. The other one was kept next to it, in the Essais folder, so nothing is lost." = "Tu versión queda en el cuaderno. La otra se guardó al lado, en la carpeta de Essais, así no se pierde nada.";
+"OK" = "Aceptar";
+"Show in Finder" = "Mostrar en Finder";
+
+"Its file is in the Essais folder but couldn’t be read, so it was left as it is. It may still be downloading from iCloud." = "Su archivo está en la carpeta de Essais pero no se pudo leer, así que se dejó como estaba. Puede que todavía se esté descargando de iCloud.";
+"If you quit now, what wasn’t saved will be lost. You can copy it first." = "Si sales ahora, se perderá lo que no se guardó. Puedes copiarlo antes.";
+"Don’t Quit" = "No salir";
+"Quit Anyway" = "Salir de todos modos";
+"Go to Date…" = "Ir a la fecha…";
+"Go to Date" = "Ir a la fecha";
+"Go" = "Ir";
+"Cancel" = "Cancelar";
+"Previous Month" = "Mes anterior";
+"Next Month" = "Mes siguiente";
+"nothing written" = "nada escrito";
+"The writing of %@ couldn’t be read" = "No se pudo leer lo escrito el %@";
+"%lld days couldn’t be read" = "No se pudieron leer %lld días";
+"Their files are in the Essais folder, untouched, but they aren’t in the notebook. They may still be downloading from iCloud." = "Sus archivos están en la carpeta de Essais, intactos, pero no están en el cuaderno. Puede que todavía se estén descargando de iCloud.";
+"Some days of the ClearMind journal came in different" = "Algunos días del diario de ClearMind llegaron distintos";
+"Nothing was deleted: the ClearMind journal is still in its place, and there’s a copy in the backup folder." = "No se borró nada: el diario de ClearMind sigue en su lugar y hay una copia en la carpeta de respaldo.";
+"Format" = "Formato";
+"Bold" = "Negrita";
+"Italic" = "Cursiva";
+"Title" = "Título";
+"Heading" = "Encabezado";
+"Subheading" = "Subencabezado";
+"One notebook to write in, day after day." = "Un solo cuaderno para escribir, día tras día.";
+"Check for Updates…" = "Buscar actualizaciones…";

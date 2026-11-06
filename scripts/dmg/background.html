@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Essais disk image background</title>
+<style>
+/* Background of the .dmg window, 600 × 400 pt: the app's paper. Finder places the icons on top:
+   Essais at (160, 170) and Applications at (440, 170), icon centers. */
+html, body { margin: 0; width: 600px; height: 400px; overflow: hidden; }
+body { background: #fefefd; color: #1d1d1f; position: relative; -webkit-font-smoothing: antialiased; }
+.flecha { position: absolute; left: 245px; top: 158px; }
+.titulo { position: absolute; left: 0; right: 0; top: 276px; text-align: center; font: 500 19px/1.2 ui-serif, "New York", Georgia, serif; }
+.nota { position: absolute; left: 70px; right: 70px; top: 316px; text-align: center; font: 12px/1.45 -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; color: #666668; }
+.nota b { font-weight: 600; color: #1d1d1f; }
+</style>
+</head>
+<body>
+  <svg class="flecha" width="110" height="24" viewBox="0 0 110 24" aria-hidden="true"><path d="M4 12H98M88 4l10 8-10 8" fill="none" stroke="#949496" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <div class="titulo">Drag Essais to Applications</div>
+  <div class="nota">If macOS won’t open it the first time, go to <b>System Settings → Privacy &amp; Security</b> and click <b>Open Anyway</b>. You only do this once.</div>
+</body>
+</html>

@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Essais · A notebook for your Mac</title>
+<meta name="description" content="One notebook, one day after another. Plain Markdown files in a folder you can see. Native, free and open source.">
+<meta property="og:title" content="Essais">
+<meta property="og:description" content="A notebook for your Mac.">
+<meta property="og:image" content="https://andrespaladino.github.io/essais/media/og.png">
+<meta property="og:url" content="https://andrespaladino.github.io/essais/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="media/icon.png">
+<style>
+:root {
+  /* The page is the app's paper, with its inks and its 37.6 em column. The first screen has no frame: it writes itself. */
+  --paper: #fefefd; --ink: #1d1d1f; --quiet: #666668; --mark: #949496; --accent: #0a84ff; --hair: rgba(0,0,0,.1); --glass: rgba(255,255,255,.66);
+  --serif: ui-serif, "New York", "Iowan Old Style", Georgia, serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --paper: #1e1e1f; --ink: #f2f2f0; --quiet: #a8a8a8; --mark: #808080; --accent: #3b9dff; --hair: rgba(255,255,255,.13); --glass: rgba(58,58,60,.6); color-scheme: dark; } }
+:root[data-theme="dark"] { --paper: #1e1e1f; --ink: #f2f2f0; --quiet: #a8a8a8; --mark: #808080; --accent: #3b9dff; --hair: rgba(255,255,255,.13); --glass: rgba(58,58,60,.6); color-scheme: dark; }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--paper); color: var(--ink); -webkit-font-smoothing: antialiased; }
+body { font: 17px/1.5 var(--sans); }
+
+/* First screen */
+.hero { position: relative; height: 100vh; min-height: 560px; overflow: hidden; cursor: text; }
+#paper { position: absolute; left: 0; top: 0; transform-origin: 0 0; font: 19px/1.45 var(--serif); text-rendering: geometricPrecision; }
+.dia { font: 600 11.5px/1.3 var(--sans); letter-spacing: .05em; color: var(--quiet); text-transform: uppercase; margin: 34px 0 10px; }
+.l { margin: 0 0 10px; min-height: 1.45em; white-space: pre-wrap; overflow-wrap: anywhere; }
+.l.h { font-weight: 700; font-size: 1.3em; line-height: 1.25; margin-top: 14px; }
+.l.c { font-style: italic; }
+.l.i { margin-bottom: 3px; }
+.l.v { min-height: 0; height: 6px; margin: 0; }
+.m { color: var(--mark); font-weight: 400; font-style: normal; }
+.t { color: var(--quiet); }
+#caret { display: inline-block; width: 2px; height: 1.16em; margin: 0 -1px; vertical-align: -.18em; background: var(--accent); border-radius: 1px; }
+#caret.blink { animation: parpadeo 1.05s steps(1) infinite; }
+@keyframes parpadeo { 50% { opacity: 0; } }
+.velo { position: absolute; inset: 0 0 auto; height: 88px; background: linear-gradient(var(--paper) 40%, transparent); pointer-events: none; }
+#teclas { position: absolute; left: -999px; top: 45%; width: 1px; height: 1px; opacity: 0; font-size: 19px; }
+
+nav { position: absolute; inset: 14px 16px auto; display: flex; justify-content: space-between; align-items: center; cursor: default; }
+.marca { display: flex; align-items: center; gap: 9px; font: 600 15px var(--sans); }
+.marca img { width: 32px; height: 32px; display: block; }
+.vidrio { background: var(--glass); -webkit-backdrop-filter: blur(18px) saturate(1.7); backdrop-filter: blur(18px) saturate(1.7); box-shadow: 0 0 0 .5px var(--hair), 0 6px 22px rgba(0,0,0,.09); }
+.pastilla { display: inline-block; font: 500 15px var(--sans); color: var(--ink); text-decoration: none; padding: 10px 20px; border-radius: 99px; transition: transform .35s cubic-bezier(.2,.9,.3,1.2); cursor: pointer; }
+.pastilla:hover { transform: scale(1.04); }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+.pie { position: absolute; inset: auto 0 9vh; text-align: center; pointer-events: none; display: grid; justify-items: center; gap: 16px; padding: 0 20px; }
+.pie > * { pointer-events: auto; }
+h1 { font: 500 clamp(30px, 4.4vw, 46px)/1.1 var(--serif); margin: 0; letter-spacing: -.005em; text-wrap: balance; }
+.pista { font-size: 13px; color: var(--quiet); margin: 0; transition: opacity .5s; }
+
+/* Short rest of the page */
+.tres { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 44px; max-width: 980px; margin: 0 auto; padding: 60px 24px 40px; }
+.tres figure { margin: 0; display: grid; gap: 14px; align-content: start; }
+.tres figcaption { font: 500 15px/1.4 var(--sans); }
+.tres figcaption span { display: block; font-weight: 400; color: var(--quiet); }
+.esc { height: 190px; position: relative; overflow: hidden; }
+
+/* Files */
+.archivos { font: 13.5px/30px var(--mono); }
+.archivos div { display: flex; align-items: center; gap: 9px; color: var(--quiet); animation: entra .7s cubic-bezier(.2,.8,.2,1) both; }
+.archivos div:last-child { color: var(--ink); }
+.archivos svg { flex: none; }
+@keyframes entra { from { opacity: 0; transform: translateY(14px); } }
+
+/* Index */
+.indice .texto { font: 16px/1.4 var(--serif); }
+.indice .texto b { font-size: 1.2em; }
+.indice .pop { position: absolute; left: 44px; right: 0; top: 64px; border-radius: 14px; padding: 8px; font: 500 13px/1 var(--sans); transform-origin: 12% 0; animation: pop 7s cubic-bezier(.2,.9,.3,1.1) infinite; }
+.indice .pop p { margin: 0; padding: 8px 8px; display: flex; justify-content: space-between; border-radius: 7px; }
+.indice .pop p:first-child { animation: fila 7s infinite; }
+.indice .pop small { font: 400 12px var(--sans); color: var(--quiet); white-space: nowrap; margin-left: 12px; }
+@keyframes pop { 0%, 24% { opacity: 0; transform: scale(.92) translateY(-8px); filter: blur(5px); } 34%, 86% { opacity: 1; transform: none; filter: none; } 96%, 100% { opacity: 0; transform: scale(.97); filter: blur(3px); } }
+@keyframes fila { 0%, 52% { background: transparent; color: inherit; } 58%, 86% { background: var(--accent); color: #fff; } 100% { background: transparent; } }
+
+/* CPU: a few bumps while you write, then flat while you think */
+.cpu svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.cpu path { fill: none; vector-effect: non-scaling-stroke; }
+.cpu .base { stroke: var(--hair); stroke-width: 1; }
+.cpu .traza { stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; stroke-dasharray: 100; animation: traza 11s linear infinite; }
+.cpu .cabeza { position: absolute; left: 0; top: calc(118 / 150 * 100%); width: 2px; height: 26px; margin-top: -13px; border-radius: 1px; background: var(--accent); animation: cabeza 11s linear infinite, parpadeo 1.05s steps(1) infinite; }
+@keyframes traza { from { stroke-dashoffset: 100; } 92%, to { stroke-dashoffset: 0; } }
+@keyframes cabeza { from { left: 0; } 92%, to { left: calc(100% - 2px); } }
+
+.tener { text-align: center; padding: 72px 24px 40px; display: grid; justify-items: center; gap: 18px; }
+.tener h2 { font: 500 32px/1.15 var(--serif); margin: 0 0 6px; }
+.pasos { display: grid; grid-template-columns: repeat(2, minmax(0, 300px)); gap: 44px; justify-content: center; }
+.pasos figure { margin: 0; display: grid; gap: 14px; align-content: start; }
+.pasos figcaption { font-size: 15px; line-height: 1.45; color: var(--quiet); text-align: center; }
+.pasos .esc { height: 150px; display: grid; place-items: center; }
+/* 1: into Applications */
+.arrastre { grid-template-columns: auto auto auto; justify-content: center; gap: 26px; }
+.ficha { display: block; animation: arrastra 5.2s cubic-bezier(.45, 0, .2, 1) infinite; }
+@keyframes arrastra { 0%, 28% { transform: none; opacity: 1; } 56% { transform: translateX(116px) scale(.72); opacity: 0; } 57%, 72% { transform: none; opacity: 0; } 84%, 100% { transform: none; opacity: 1; } }
+.flecha { color: var(--mark); font: 22px var(--sans); }
+.carpeta { position: relative; width: 68px; height: 52px; margin-top: 8px; border-radius: 5px 8px 8px 8px; background: linear-gradient(#74c0fc, #3b8fe6); animation: recibe 5.2s ease infinite; }
+.carpeta::before { content: ""; position: absolute; left: 0; top: -7px; width: 28px; height: 10px; border-radius: 4px 6px 0 0; background: #5aa8f2; }
+.carpeta i { position: absolute; left: 50%; top: 50%; width: 20px; height: 20px; margin: -9px 0 0 -10px; border: 2.5px solid rgba(255, 255, 255, .6); border-radius: 50%; }
+@keyframes recibe { 0%, 50% { transform: none; } 57% { transform: scale(1.08); } 66%, 100% { transform: none; } }
+/* 2: Open Anyway */
+.panel { width: 100%; max-width: 280px; border-radius: 12px; padding: 13px 15px; font: 13px/1.35 var(--sans); text-align: left; }
+.panel p { margin: 3px 0 10px; color: var(--quiet); }
+.boton { display: inline-block; padding: 3px 11px; border-radius: 7px; font-size: 12.5px; background: var(--hair); animation: pulsa 5.2s ease infinite; }
+@keyframes pulsa { 0%, 46%, 66%, 100% { background: var(--hair); color: inherit; transform: none; } 52%, 60% { background: var(--accent); color: #fff; transform: scale(.97); } }
+.porque { margin: 6px 0 4px; color: var(--quiet); font-size: 14px; max-width: 58ch; }
+.requisito { margin: -4px 0 0; color: var(--quiet); font-size: 13px; }
+footer { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 18px; padding: 44px 24px 56px; font-size: 13px; color: var(--quiet); }
+footer a { color: inherit; text-decoration-color: var(--mark); text-underline-offset: 2px; }
+
+@media (max-width: 720px) { .tres { grid-template-columns: 1fr; gap: 28px; } .esc { height: 170px; } .pasos { grid-template-columns: minmax(0, 320px); gap: 28px; } }
+@media (prefers-reduced-motion: reduce) { .archivos div, .indice .pop, .indice .pop p:first-child, .ficha, .carpeta, .boton, .cpu .cabeza { animation: none; } .cpu .traza { animation: none; stroke-dashoffset: 0; } .cpu .cabeza { left: calc(100% - 2px); } .indice .pop { opacity: 1; } }
+</style>
+</head>
+<body>
+<section class="hero" id="hero" aria-label="A page of Essais, writing itself. Click to write on it, pinch to get closer.">
+  <div id="paper"></div>
+  <div class="velo"></div>
+  <textarea id="teclas" aria-label="Write on the page. What you write stays here." autocapitalize="sentences" spellcheck="false"></textarea>
+  <nav>
+    <span class="marca"><img src="media/icon.png" alt="" width="32" height="32">Essais</span>
+  </nav>
+  <div class="pie">
+    <h1>A notebook for your Mac.</h1>
+    <a class="pastilla vidrio" href="https://github.com/AndresPaladino/essais/releases/latest/download/Essais.dmg">Download</a>
+    <p class="pista" id="pista">Click and write. Pinch to get closer.</p>
+  </div>
+</section>
+
+<section class="tres">
+  <figure>
+    <div class="esc archivos" id="archivos" aria-hidden="true"></div>
+    <figcaption>Plain files.<span>A Markdown file for each day, in a folder you can see.</span></figcaption>
+  </figure>
+  <figure>
+    <div class="esc indice" aria-hidden="true">
+      <div class="texto"><b><span class="m">#</span> On habits</b><br>Writing every day is like that. <span class="t">#reading</span></div>
+      <div class="pop vidrio"><p>On habits <small>6 Nov</small></p><p>Morning, before class <small>2 Nov</small></p><p>Letters <small>29 Oct</small></p></div>
+    </div>
+    <figcaption>An index that writes itself.<span>Titles and tags, from what you wrote.</span></figcaption>
+  </figure>
+  <figure>
+    <div class="esc cpu" aria-hidden="true">
+      <svg viewBox="0 0 300 150" preserveAspectRatio="none">
+        <path class="base" d="M0 118H300"/>
+        <path class="traza" pathLength="100" d="M0 118 L14 118 L18 108 L22 118 L30 118 L34 112 L38 118 L46 118 L49 104 L53 118 L64 118 L68 113 L72 118 L300 118"/>
+      </svg>
+      <span class="cabeza"></span>
+    </div>
+    <figcaption>Light.<span>Under 1% of the CPU while the caret blinks.</span></figcaption>
+  </figure>
+</section>
+
+<section class="tener">
+  <h2>Get Essais</h2>
+  <div class="pasos">
+    <figure>
+      <div class="esc arrastre" aria-hidden="true">
+        <img src="media/icon.png" alt="" width="68" height="68" class="ficha">
+        <span class="flecha">→</span>
+        <span class="carpeta"><i></i></span>
+      </div>
+      <figcaption>Drag Essais to Applications.</figcaption>
+    </figure>
+    <figure>
+      <div class="esc abrir" aria-hidden="true">
+        <div class="panel vidrio">
+          <b>Security</b>
+          <p>“Essais” was blocked to protect your Mac.</p>
+          <span class="boton">Open Anyway</span>
+        </div>
+      </div>
+      <figcaption>Open it once. Then, in System Settings › Privacy &amp; Security, click Open Anyway.</figcaption>
+    </figure>
+  </div>
+  <p class="porque">Why the extra step? Essais isn't notarized by Apple, which needs a paid developer account. The code is open, so anyone can check what it does.</p>
+  <a class="pastilla vidrio" href="https://github.com/AndresPaladino/essais/releases/latest/download/Essais.dmg">Download for macOS</a>
+  <p class="requisito">Free. macOS 26 or later.</p>
+</section>
+
+<footer>
+  <span>Made by Andrés Paladino.</span>
+  <a href="https://github.com/AndresPaladino/essais">GitHub</a>
+  <a href="https://github.com/AndresPaladino/essais/blob/main/LICENSE">MIT License</a>
+</footer>
+
+<script>
+const $ = s => document.querySelector(s);
+const hero = $('#hero'), paper = $('#paper'), teclas = $('#teclas'), pista = $('#pista');
+const quieto = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// ---- Text: the same in-place Markdown as the app. Marks stay visible and quiet.
+const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+function linea(src) {
+  let h = esc(src), clase = 'l';
+  const titulo = h.match(/^(#{1,3})[ \t]+/);
+  let inicio = '';
+  if (titulo) { clase += ' h'; inicio = `<span class="m">${titulo[0]}</span>`; h = h.slice(titulo[0].length); }
+  const cita = h.match(/^&gt;[ \t]?|^>[ \t]?/);
+  if (cita) { clase += ' c'; inicio = `<span class="m">${cita[0]}</span>`; h = h.slice(cita[0].length); }
+  const item = h.match(/^- /);
+  if (item) { clase += ' i'; inicio = `<span class="m">- </span>`; h = h.slice(2); }
+  h = h.replace(/(^|[^\p{L}\p{N}_#&\/])(#[\p{L}\p{N}_-]*\p{L}[\p{L}\p{N}_-]*)/gu, '$1<span class="t">$2</span>');
+  h = h.replace(/(?<![\p{N}*\\])(\*{1,2})(?=[^\s*])(.+?)(?<=[^\s*])\1(?!\*)/gu, (_, m, t) =>
+    `<span class="m">${m}</span>${m.length === 2 ? `<b>${t}</b>` : `<i>${t}</i>`}<span class="m">${m}</span>`);
+  return { clase, html: inicio + h };
+}
+function fecha(atras) {
+  const d = new Date(); d.setDate(d.getDate() - atras);
+  return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+}
+const DIAS = [
+  [14, ['# On habits', 'I started the book thinking it would be a manual for living, and in a way it is. But he gives no rules: he describes habits. You learn virtue the way you learn the lyre, by playing it. #reading', 'Writing every day is like that. There is no day you become someone who writes. There are many days when you write.']],
+  [12, ['Slow Sunday. Lunch with my parents. They asked again what I plan to do when I graduate, and for the first time it didn’t bother me not to know.', 'In the afternoon I sorted books and found old letters from my grandmother. Her slanted hand, the accents she never wrote. I read until it got dark. #family']],
+  [9, ['Rain all afternoon. Finished the networks report and stayed up reading.', '> “We are what we repeatedly do.” Attributed to Aristotle, though it’s really Will Durant.', 'It amuses me that his most quoted line isn’t his. #reading']],
+  [7, ['# Morning, before class', 'Walked to the river before class. The water was grey and still, and for a while I thought about nothing at all. #walks']],
+  [5, ['Woke up before the alarm and stayed a while looking at the ceiling. **Those minutes** with nothing to do put me in order better than any list.']],
+];
+// Different things on different days, as in a real notebook: a walk, a quote to keep, a list, an essay begun.
+const FINAL = [
+  [3, 'Walked to the river before class. The water was grey and still, and for a while I thought about nothing at all.'],
+  [2, '> “I do not portray being: I portray passing.” Montaigne\nCopied here so I can find it later. #reading'],
+  [1, '- call the dentist\n- return the library book\n- buy coffee'],
+  [0, '# On finishing things\nA notebook is the one place where nothing has to be finished. #writing'],
+];
+
+let ahora = '';
+function armar() {
+  paper.innerHTML = DIAS.map(([a, ls]) => `<div class="dia">${fecha(a)}</div>` + ls.map(t => { const l = linea(t); return `<div class="${l.clase}">${l.html}</div>`; }).join('')).join('');
+}
+// A new day: what was being written stays on the page, the date joins below, the caret goes under it.
+function nuevoDia(atras) {
+  const previo = $('#hoy');
+  if (previo) { previo.removeAttribute('id'); const c = previo.querySelector('#caret'); if (c) c.remove(); }
+  paper.insertAdjacentHTML('beforeend', `<div class="dia">${fecha(atras)}</div><div id="hoy"></div>`);
+  ahora = ''; pintar();
+}
+function pintar() {
+  const ls = ahora.split('\n');
+  $('#hoy').innerHTML = ls.map((t, i) => {
+    const l = linea(t);
+    return `<div class="${l.clase}">${l.html}${i === ls.length - 1 ? '<span id="caret"></span>' : ''}</div>`;
+  }).join('');
+}
+
+// ---- Camera. Springs, critically damped: a move starts from whatever speed there is and never jerks.
+// The caret's height is exact at any zoom (y comes from the scale and the line), so the eyes stay put.
+const espacio = { H: 0, W: 0 };
+const cam = { x: 0, y: 0, s: 1 };
+const resorte = (v, w) => ({ v, t: v, u: 0, w });
+const escala = resorte(1, 2.3);      // zoom: unhurried
+const lineaY = resorte(0, 9);        // the paper rising to the next line
+const lateral = resorte(0, 6.5);     // sideways: follows the caret, swoops back when the line breaks
+let libre = false;                   // the reader is pinching or panning: the camera is theirs
+const LINEA = .45, FOCO = .6;        // the writing line, and where the caret rides when zoomed in
+const col = () => Math.min(640, espacio.W - 48);
+
+function paso(r, dt) {
+  // Exact solution of the critically damped spring: stable at any frame rate.
+  const e = Math.exp(-r.w * dt), d = r.v - r.t, c = r.u + r.w * d;
+  r.v = r.t + (d + c * dt) * e;
+  r.u = (r.u - c * r.w * dt) * e;
+}
+function apuntar() {
+  const c = $('#caret');
+  if (!c || libre) return;
+  lineaY.t = c.offsetTop + c.offsetHeight / 2;
+}
+function xDeseada(s) {
+  const c = $('#caret'), ancho = s * col(), W = espacio.W;
+  if (ancho <= W - 48 || !c) return (W - ancho) / 2;
+  return Math.min(24, Math.max(W - ancho - 24, W * FOCO - s * c.offsetLeft));
+}
+let ultimo = 0;
+function cuadro(t) {
+  const dt = Math.min(.034, (t - ultimo) / 1000 || 0); ultimo = t;
+  avanzar(dt);
+  requestAnimationFrame(cuadro);
+}
+function avanzar(dt) {
+  if (!libre) {
+    paso(escala, dt); paso(lineaY, dt);
+    lateral.t = xDeseada(escala.v);
+    paso(lateral, dt);
+    cam.s = escala.v;
+    cam.y = espacio.H * LINEA - cam.s * lineaY.v;
+    cam.x = lateral.v;
+  }
+  paper.style.transform = `translate3d(${cam.x.toFixed(2)}px, ${cam.y.toFixed(2)}px, 0) scale(${cam.s.toFixed(4)})`;
+}
+function colocar() {
+  espacio.W = hero.clientWidth; espacio.H = hero.clientHeight;
+  paper.style.width = col() + 'px';
+  apuntar();
+}
+addEventListener('resize', colocar);
+function ahoraMismo() { // no animation: jump to the target
+  lineaY.v = lineaY.t; lineaY.u = 0; escala.v = escala.t; escala.u = 0;
+  lateral.v = lateral.t = xDeseada(escala.v); lateral.u = 0;
+  avanzar(0);
+}
+
+// ---- Caret: solid while writing, blinks after a moment still.
+let quietoTimer;
+function caretViva() {
+  clearTimeout(quietoTimer);
+  quietoTimer = setTimeout(() => { const n = $('#caret'); if (n) n.classList.add('blink'); }, 550);
+}
+
+// ---- The demo. Types like a person: words in bursts, a breath after punctuation.
+let corrida = 0;
+const pausa = ms => new Promise(r => setTimeout(r, ms));
+async function escribir(texto, turno) {
+  for (let i = 0; i < texto.length; i++) {
+    if (turno !== corrida) return;
+    const ch = texto[i];
+    ahora += ch; pintar(); apuntar(); caretViva();
+    let ms = 62 + Math.random() * 62;
+    if (ch === ' ') ms += 70 + Math.random() * 150;
+    if (ch === ',') ms += 520 + Math.random() * 300;
+    if (ch === '.' || ch === ':') ms += 900 + Math.random() * 500;
+    if (ch === '\n') ms += 500;
+    await pausa(ms);
+  }
+}
+function zum(s, w = 2.3) { escala.t = s; escala.w = w; }
+// Not always writing: the caret waits, blinking, and the camera leans back while you think.
+async function pensar(ms, turno) {
+  clearTimeout(quietoTimer);
+  const c = $('#caret'); if (c) c.classList.add('blink');
+  await pausa(ms);
+  return turno === corrida;
+}
+async function borrar(n, turno) {
+  for (let i = 0; i < n; i++) {
+    if (turno !== corrida) return;
+    ahora = ahora.slice(0, -1); pintar(); apuntar(); caretViva();
+    await pausa(38 + Math.random() * 20);
+  }
+}
+async function demo() {
+  const turno = ++corrida;
+  clearTimeout(soltar);
+  libre = false; armar();
+  escala.t = escala.v = 1; escala.u = 0;
+  // The demo's camera is unhurried; when the reader writes it goes back to the app's.
+  lineaY.w = 5; lateral.w = 3.6;
+  if (quieto) {
+    FINAL.forEach(([a, t]) => { nuevoDia(a); ahora = t; pintar(); });
+    $('#caret').classList.add('blink'); colocar(); ahoraMismo(); return;
+  }
+  const sigue = async (texto, ms) => { await escribir(texto, turno); return turno === corrida && (!ms || await pensar(ms, turno)); };
+
+  // It opens on an empty line, waiting. Nothing happens for a while, and that's the point.
+  nuevoDia(3); colocar(); ahoraMismo();
+  if (!await pensar(4600, turno)) return;
+
+  // A walk. The camera leans in as the sentence finds itself, and leaves when it ends.
+  if (!await sigue('Walked to the river', 1500)) return;
+  if (!await sigue(' before class.', 2400)) return;
+  zum(1.95, 1.05);
+  if (!await sigue(' The water was grey and still,', 1900)) return;
+  if (!await sigue(' and for a while I thought', 2800)) return;
+  if (!await sigue(' about nothing at all.')) return;
+  zum(1, .85);
+  if (!await pensar(6200, turno)) return;
+
+  // A quote to keep. It waits, and then a note in two attempts.
+  nuevoDia(2); colocar();
+  if (!await pensar(3400, turno)) return;
+  if (!await sigue('> “I do not portray being: I portray passing.”', 1500)) return;
+  if (!await sigue(' Montaigne', 3600)) return;
+  if (!await sigue('\nI should', 2200)) return;
+  await borrar(8, turno);
+  if (!await pensar(1500, turno)) return;
+  if (!await sigue('Copied here so I can find it later.', 1800)) return;
+  if (!await sigue(' #reading', 4600)) return;
+
+  // A list, remembered one thing at a time.
+  nuevoDia(1); colocar();
+  if (!await pensar(2800, turno)) return;
+  if (!await sigue('- call the dentist', 2100)) return;
+  if (!await sigue('\n- return the library book', 3000)) return;
+  if (!await sigue('\n- buy', 1700)) return;
+  if (!await sigue(' coffee', 4200)) return;
+
+  // The beginning of an essay: it stops, takes a word back, tries again.
+  nuevoDia(0); colocar();
+  if (!await pensar(4000, turno)) return;
+  if (!await sigue('# On finishing things', 3800)) return;
+  zum(1.55, .95);
+  if (!await sigue('\nA notebook is the place', 4400)) return;
+  await borrar(5, turno);
+  if (!await pensar(2300, turno)) return;
+  if (!await sigue('one place', 1700)) return;
+  if (!await sigue(' where nothing has to be', 3000)) return;
+  if (!await sigue(' finished.')) return;
+  zum(1, .8);
+  if (!await pensar(4400, turno)) return;
+  if (!await sigue(' #writing')) return;
+  pensar(0, turno);                                        // and it stays there, blinking
+}
+
+// ---- The reader takes over. The page only reads the keyboard after a click on the paper.
+function tomar() {
+  corrida++;
+  lineaY.w = 9; lateral.w = 6.5;
+  pista.style.opacity = 0;
+  teclas.value = ahora; teclas.focus({ preventScroll: true });
+  teclas.setSelectionRange(ahora.length, ahora.length);
+  if (!libre) { zum(Math.max(1, escala.t), 2.4); if (escala.t !== 1 && !pellizcado) zum(1, 2); }
+  const c = $('#caret'); if (c) c.classList.add('blink');
+}
+hero.addEventListener('mousedown', e => { if (e.target.closest('a, button')) return; e.preventDefault(); tomar(); });
+teclas.addEventListener('input', () => {
+  // Writing brings the camera back to the caret, from wherever the reader left it, at their zoom.
+  if (libre) soltarCamara();
+  ahora = teclas.value; pintar(); apuntar(); caretViva();
+});
+teclas.addEventListener('keydown', e => { if (e.key === 'Escape') teclas.blur(); });
+
+// Pinch and pan, like a page in Safari: the point under the fingers stays there, it never goes below
+// actual size (it gives a little and comes back), and closer in, two fingers move around the paper.
+let pellizcado = false, soltar;
+function soltarCamara() {
+  // Hands the camera back to the springs exactly where it is, so nothing jumps.
+  libre = false;
+  escala.v = cam.s; escala.u = 0;
+  lateral.v = cam.x; lateral.u = 0;
+  lineaY.v = (espacio.H * LINEA - cam.y) / cam.s; lineaY.u = 0;
+  const c = $('#caret'); if (c) lineaY.t = c.offsetTop + c.offsetHeight / 2;
+}
+function limitesLibre() {
+  // Closer in, the paper can't leave the window altogether.
+  const ancho = cam.s * col();
+  cam.x = Math.min(espacio.W * .6, Math.max(espacio.W * .4 - ancho, cam.x));
+}
+hero.addEventListener('wheel', e => {
+  const r = hero.getBoundingClientRect();
+  if (e.ctrlKey) {
+    e.preventDefault();
+    corrida++; pista.style.opacity = 0;
+    if (!libre) { libre = true; }
+    pellizcado = true;
+    const px = e.clientX - r.left, py = e.clientY - r.top;
+    const crudo = cam.s * Math.exp(-e.deltaY * .011);
+    // Past the ends it resists.
+    let s = crudo;
+    if (crudo < 1) s = 1 - (1 - crudo) * .3;
+    if (crudo > 3) s = 3 + (crudo - 3) * .3;
+    s = Math.max(.88, Math.min(3.25, s));
+    const cx = (px - cam.x) / cam.s, cy = (py - cam.y) / cam.s;
+    cam.s = s; cam.x = px - cx * s; cam.y = py - cy * s;
+    clearTimeout(soltar);
+    soltar = setTimeout(() => {
+      if (cam.s <= 1.02) { pellizcado = false; escala.t = 1; escala.w = 4.5; soltarCamara(); apuntar(); zum(1, 4.5); }
+      else if (cam.s > 3) { soltarCamara(); zum(3, 4.5); libre = false; }
+    }, 130);
+    return;
+  }
+  // Two fingers while closer in: moves around the paper instead of scrolling the page.
+  if (libre && cam.s > 1.01) {
+    e.preventDefault();
+    cam.x -= e.deltaX; cam.y -= e.deltaY;
+    limitesLibre();
+  }
+}, { passive: false });
+
+// ---- Files: one more every few seconds.
+const lista = $('#archivos');
+const icono = '<svg width="13" height="16" viewBox="0 0 13 16" aria-hidden="true"><path d="M1.5.5h6.8l4.2 4.2v9.8a1 1 0 0 1-1 1H1.5a1 1 0 0 1-1-1V1.5a1 1 0 0 1 1-1z" fill="none" stroke="currentColor"/><path d="M8 .7V5h4.3" fill="none" stroke="currentColor"/></svg>';
+const nombre = a => { const d = new Date(); d.setDate(d.getDate() - a); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}.md`; };
+// Oldest first; each new day comes in below, and then the list starts over.
+let cuenta = 0;
+function archivos() {
+  if (cuenta % 6 === 5) { lista.innerHTML = ''; cuenta++; }
+  const n = cuenta % 6;
+  lista.insertAdjacentHTML('beforeend', `<div>${icono}${nombre(4 - n)}</div>`);
+  cuenta++;
+}
+if (quieto) [0, 1, 2, 3, 4].forEach(archivos);
+else { archivos(); setInterval(archivos, 1900); }
+
+requestAnimationFrame(cuadro);
+demo();
+</script>
+</body>
+</html>
