@@ -10,7 +10,7 @@
 
 There are no folders to set up, no templates to choose and no entries to name. You open it and write.
 
-Each day is a plain Markdown file in `~/Documents/Essais`, so any editor can open your writing. There's no account, server or database. Essais is written in Swift with AppKit.
+Each day is a plain Markdown file in `~/Documents/Essais`, or a folder you choose, so any editor can open your writing. There's no account, server or database. Essais is written in Swift with AppKit.
 
 ## Install
 
