@@ -4,6 +4,23 @@
     <title>Essais</title>
     <!-- items -->
     <item>
+      <title>Essais 1.1</title>
+      <pubDate>Fri, 06 Nov 2026 19:02:46 +0000</pubDate>
+      <sparkle:version>3</sparkle:version>
+      <sparkle:shortVersionString>1.1</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+      <description><![CDATA[
+      <ul>
+        <li>Welcome: choose the font, size, appearance and location the first time you open Essais.</li>
+        <li>Settings: writing, corrections, appearance, notebook and updates in one window.</li>
+        <li>The notebook can now be moved to another folder, such as Dropbox or an external drive.</li>
+        <li>Dates can be shown in English, in Spanish or in the system's language.</li>
+        <li>VoiceOver reads your text without Markdown marks, and the Titles rotor no longer selects the title.</li>
+      </ul>
+      ]]></description>
+      <enclosure url="https://github.com/AndresPaladino/essais/releases/download/v1.1/Essais.zip" type="application/octet-stream" sparkle:edSignature="lf0Zyggrb30fCA7m5GJUksfLVUeTIsXRk6sfsOisFZR9YRNeVA4DA/JxD5fp4KW/sJNUmVHz6vGyTLRHfuorCg==" length="3554853"/>
+    </item>
+    <item>
       <title>Essais 1.0</title>
       <pubDate>Fri, 06 Nov 2026 05:22:08 +0000</pubDate>
       <sparkle:version>2</sparkle:version>
