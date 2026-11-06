@@ -3,5 +3,21 @@
   <channel>
     <title>Essais</title>
     <!-- items -->
+    <item>
+      <title>Essais 1.0</title>
+      <pubDate>Fri, 06 Nov 2026 05:22:08 +0000</pubDate>
+      <sparkle:version>2</sparkle:version>
+      <sparkle:shortVersionString>1.0</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+      <description><![CDATA[
+      <ul>
+        <li>One notebook, one day after another, as plain Markdown files in a folder you can see.</li>
+        <li>An index built from your titles and tags, search, and go to a date.</li>
+        <li>A camera that follows what you write. Pinch to get closer.</li>
+        <li>Four typefaces, any size, light and dark.</li>
+      </ul>
+      ]]></description>
+      <enclosure url="https://github.com/AndresPaladino/essais/releases/download/v1.0/Essais.zip" type="application/octet-stream" sparkle:edSignature="XrWZ4VwSvRTEnxCcKQUgW4xigiJn/lL7Xl5BGQ1ffPUzIIqBQ4aeCdheialLFOTy5Ww6yRjQmWSpvWbQAJvPCQ==" length="3263192"/>
+    </item>
   </channel>
 </rss>
