@@ -58,7 +58,9 @@ final class NotebookRotors: NSObject, NSAccessibilityCustomRotorItemSearchDelega
         return items
     }
 
+    /// The caret goes to the start of the title's words, with nothing selected: choosing a title from
+    /// the list and then typing must not write over it. VoiceOver reads the label.
     private func titles(_ storage: NSTextStorage) -> [(range: NSRange, label: String)] {
-        NotebookIndex(storage).titles.map { ($0.range, $0.text) }
+        NotebookIndex(storage).titles.map { (NSRange(location: $0.textStart, length: 0), $0.text) }
     }
 }

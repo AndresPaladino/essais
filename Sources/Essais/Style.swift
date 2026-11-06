@@ -5,6 +5,8 @@ extension NSAttributedString.Key {
     static let day = NSAttributedString.Key("EssaisDay")
     /// Marks the date line that opens a day. It is not part of the file and can't be edited.
     static let dateLine = NSAttributedString.Key("EssaisDateLine")
+    /// A Markdown mark VoiceOver doesn't read out when it reads more than one character.
+    static let silentMark = NSAttributedString.Key("EssaisSilentMark")
 }
 
 enum Paper {
@@ -165,10 +167,24 @@ enum Markdown {
         } while location < NSMaxRange(range) && location < ns.length
     }
 
+    /// `text` with the marks inside `range` of `source` turned into spaces, for VoiceOver: read aloud they
+    /// get in the way of the writing. Same length, so every position still matches the screen.
+    static func withoutMarks(_ text: NSAttributedString, in range: NSRange, of source: NSAttributedString) -> NSAttributedString {
+        guard range.length == text.length, NSMaxRange(range) <= source.length else { return text }
+        let spoken = NSMutableAttributedString(attributedString: text)
+        source.enumerateAttribute(.silentMark, in: range) { value, r, _ in
+            guard value != nil else { return }
+            spoken.mutableString.replaceCharacters(in: NSRange(location: r.location - range.location, length: r.length),
+                                                   with: String(repeating: " ", count: r.length))
+        }
+        return spoken
+    }
+
     private static func styleParagraph(_ text: NSMutableAttributedString, _ range: NSRange) {
         let line = (text.string as NSString).substring(with: range)
         let whole = NSRange(location: 0, length: (line as NSString).length)
         let quiet = Paper.markInk
+        text.removeAttribute(.silentMark, range: range)
         // An empty line only separates paragraphs; the paragraph spacing already does that.
         if line.trimmingCharacters(in: .newlines).isEmpty {
             text.addAttributes([.font: Reading.font.font(Reading.size * 0.35), .paragraphStyle: NSParagraphStyle.default], range: range)
@@ -177,6 +193,7 @@ enum Markdown {
         var font = Reading.body
         var marks: [NSRange] = []
         var kind = Reading.Line.body
+        var number: NSRange?   // a list's "1." looks quiet but says something
         if let m = heading.firstMatch(in: line, range: whole) {
             font = Fonts.font(Reading.font.font(Reading.size * [1, 1.3, 1.15, 1.08][m.range(at: 1).length]), with: .boldFontMask)
             marks.append(m.range)
@@ -187,6 +204,7 @@ enum Markdown {
         } else if let m = item.firstMatch(in: line, range: whole) {
             marks.append(m.range)
             kind = .item
+            if (line as NSString).substring(with: m.range).contains(where: \.isNumber) { number = m.range }
         }
         text.addAttributes([.font: font, .foregroundColor: NSColor.labelColor, .paragraphStyle: Reading.paragraph(kind)], range: range)
         let at = { (r: NSRange) in NSRange(location: range.location + r.location, length: r.length) }
@@ -198,7 +216,10 @@ enum Markdown {
                 marks += [NSRange(location: m.range.location, length: markLength), NSRange(location: NSMaxRange(m.range) - markLength, length: markLength)]
             }
         }
-        for r in marks { text.addAttribute(.foregroundColor, value: quiet, range: at(r)) }
+        for r in marks {
+            text.addAttribute(.foregroundColor, value: quiet, range: at(r))
+            if r != number { text.addAttribute(.silentMark, value: true, range: at(r)) }
+        }
         for m in tag.matches(in: line, range: whole) {
             text.addAttribute(.foregroundColor, value: Paper.secondaryInk, range: at(m.range))
         }

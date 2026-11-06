@@ -150,6 +150,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             if let z = value("--zoom-probe").flatMap(Double.init) { FileHandle.standardError.write((notebook.debugZoom(CGFloat(z)) + "\n").data(using: .utf8)!) }
             if args.contains("--cursor-check") { FileHandle.standardError.write((notebook.debugCursors() + "\n").data(using: .utf8)!) }
             if args.contains("--rotors") { FileHandle.standardError.write((notebook.debugRotors() + "\n").data(using: .utf8)!) }
+            if args.contains("--scroll-log") { notebook.debugScrollLog() }
             if let text = value("--find") { notebook.find(text) }
             if let mode = value("--size-walk") { notebook.debugSizeWalk(mode) }
             if args.contains("--about") { showAbout(nil) }

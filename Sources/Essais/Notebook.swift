@@ -158,6 +158,30 @@ final class PaperTextView: NSTextView {
     var rotors: NotebookRotors?
     override func accessibilityCustomRotors() -> [NSAccessibilityCustomRotor] { rotors?.rotors ?? [] }
 
+    /// Only for VoiceOver: other tools that read the text (Voice Control, Writing Tools) need the real one.
+    private var voiceOverIsReading: Bool {
+        #if QA
+        if QA.env("ESSAIS_VO") == "1" { return true }
+        #endif
+        return NSWorkspace.shared.isVoiceOverEnabled
+    }
+
+    /// Lines and words are read without their marks. One character at a time they are read as they
+    /// are: that's how you find out what's there when correcting.
+    private func spoken(_ text: NSAttributedString?, _ range: NSRange) -> NSAttributedString? {
+        guard let text, range.length > 1, voiceOverIsReading, let textStorage else { return text }
+        return Markdown.withoutMarks(text, in: range, of: textStorage)
+    }
+
+    override func accessibilityAttributedString(for range: NSRange) -> NSAttributedString? {
+        spoken(super.accessibilityAttributedString(for: range), range)
+    }
+
+    override func accessibilityString(for range: NSRange) -> String? {
+        guard let text = super.accessibilityString(for: range) else { return nil }
+        return spoken(NSAttributedString(string: text), range)?.string ?? text
+    }
+
     private func overControls(_ event: NSEvent) -> Bool {
         controlAreas?().contains { $0.contains(event.locationInWindow) } ?? false
     }
@@ -1509,6 +1533,21 @@ final class NotebookController: NSWindowController, NSWindowDelegate, NSTextView
 
     private func clipTop() -> CGFloat { scrollView.contentView.bounds.minY }
 
+    /// Logs each change of the paper's position: time, y, and whether the camera is driving (--scroll-log).
+    func debugScrollLog() {
+        var last = scrollView.contentView.bounds.minY
+        let timer = Timer(timeInterval: 1.0 / 120, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                let y = self.scrollView.contentView.bounds.minY
+                guard y != last else { return }
+                last = y
+                FileHandle.standardError.write(String(format: "scroll %.3f %.1f %@\n", CACurrentMediaTime(), y, self.camera.isMoving ? "camara" : "mano").data(using: .utf8)!)
+            }
+        }
+        RunLoop.main.add(timer, forMode: .common)
+    }
+
     /// The end of the text with its day/date-line runs (kill -USR1 in debug mode).
     func debugTail() -> String {
         let from = max(0, storage.length - 120)
@@ -1522,6 +1561,12 @@ final class NotebookController: NSWindowController, NSWindowDelegate, NSTextView
             let index = { (y: CGFloat) in lm.characterIndexForGlyph(at: lm.glyphIndex(for: NSPoint(x: 1, y: y - o), in: container)) }
             out.append("vista \(index(clip.minY + topBand + 2))…\(index(clip.maxY - 2))")
         }
+        var foreign: [String: Int] = [:]
+        let others: [NSAttributedString.Key] = [.link, .backgroundColor, .underlineStyle, .strikethroughStyle, .attachment, .shadow, .obliqueness, .baselineOffset]
+        storage.enumerateAttributes(in: NSRange(location: 0, length: storage.length)) { attrs, _, _ in
+            for key in others where attrs[key] != nil { foreign[key.rawValue, default: 0] += 1 }
+        }
+        out.append("atributos ajenos: \(foreign.isEmpty ? "ninguno" : "\(foreign)")")
         out.append("letra \(String(format: "%.0f", lastReadingCost * 1000)) ms, columna \(Int(textView.frame.width - textView.textContainerInset.width * 2))")
         out.append("sin guardar (notas \(dirtyDays.sorted())): \(store.unsaved(days()))")
         out.append("days: " + days().suffix(2).map { "\($0.key)=\($0.text.replacingOccurrences(of: "\n", with: "⏎"))" }.joined(separator: " | "))
@@ -1594,7 +1639,8 @@ final class NotebookController: NSWindowController, NSWindowDelegate, NSTextView
                 p.currentItem = current
                 p.searchDirection = .next
                 guard let r = rotor.itemSearchDelegate?.rotor(rotor, resultFor: p) else { break }
-                labels.append(r.customLabel ?? "?")
+                let at = (storage.string as NSString).substring(with: NSRange(location: r.targetRange.location, length: min(12, storage.length - r.targetRange.location)))
+                labels.append("\(r.customLabel ?? "?") @\(r.targetRange.location)+\(r.targetRange.length) «\(at)»")
                 current = r
             }
             return "\(rotor.label): " + labels.joined(separator: " | ")

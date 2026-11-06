@@ -3,7 +3,8 @@ import AppKit
 /// Locke's commonplace index, built from the text itself: `# titles` and `#tags`, each with
 /// the day it appears. Nothing to maintain; references are dates, which never move.
 struct NotebookIndex {
-    struct Title { let text: String; let range: NSRange; let day: String }
+    /// `range` is the whole line, marks included; `textStart` is where its words begin.
+    struct Title { let text: String; let range: NSRange; let textStart: Int; let day: String }
     /// A tag and the days it appears on (a tag used twice in a day counts one day).
     struct Tag { let name: String; var days: Set<String> }
 
@@ -24,7 +25,7 @@ struct NotebookIndex {
             let whole = NSRange(location: 0, length: (line as NSString).length)
             if let m = Self.heading.firstMatch(in: line, range: whole) {
                 let title = (line as NSString).substring(with: m.range(at: 1)).trimmingCharacters(in: .whitespaces)
-                titles.append(Title(text: title, range: range, day: day))
+                titles.append(Title(text: title, range: range, textStart: range.location + m.range(at: 1).location, day: day))
             }
             for m in Markdown.tag.matches(in: line, range: whole) {
                 // The same tag whether its accents came composed or not (text pasted from a PDF).
